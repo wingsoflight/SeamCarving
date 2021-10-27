@@ -35,14 +35,11 @@ public class SeamCarver {
         for(int i = 0; i < 3; ++i){
             int l = leftPixel & mask, r = rightPixel & mask;
             int u = upperPixel & mask, d = lowerPixel & mask;
-            int vDiff = u - d;
-            int hDiff = l - r;
+            int vDiff = (u - d) >> (8 * i);
+            int hDiff = (l - r) >> (8 * i);
             horizontalGrad += hDiff * hDiff;
             verticalGrad += vDiff * vDiff;
-            leftPixel >>= 8;
-            rightPixel >>= 8;
-            upperPixel >>= 8;
-            lowerPixel >>= 8;
+            mask <<= 8;
         }
         int grad = horizontalGrad + verticalGrad;
         return Math.sqrt(1.0 * grad);
