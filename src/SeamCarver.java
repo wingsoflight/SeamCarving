@@ -35,11 +35,14 @@ public class SeamCarver {
         for(int i = 0; i < 3; ++i){
             int l = leftPixel & mask, r = rightPixel & mask;
             int u = upperPixel & mask, d = lowerPixel & mask;
-            int vDiff = (u - d) >> (8 * i);
-            int hDiff = (l - r) >> (8 * i);
+            int vDiff = u - d;
+            int hDiff = l - r;
             horizontalGrad += hDiff * hDiff;
             verticalGrad += vDiff * vDiff;
-            mask <<= 8;
+            leftPixel >>= 8;
+            rightPixel >>= 8;
+            upperPixel >>= 8;
+            lowerPixel >>= 8;
         }
         int grad = horizontalGrad + verticalGrad;
         return Math.sqrt(1.0 * grad);
@@ -65,6 +68,6 @@ public class SeamCarver {
     public static void main(String[] args) {
         Picture picture = new Picture("3x4.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        System.out.println(seamCarver.energy(1, 2));
+        System.out.println(seamCarver.energy(200, 200));
     }
 }
