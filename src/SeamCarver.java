@@ -68,6 +68,6 @@ public class SeamCarver {
     public static void main(String[] args) {
         Picture picture = new Picture("3x4.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        System.out.println(seamCarver.energy(200, 200));
+        System.out.println(seamCarver.energy(1, 2));
     }
 }
