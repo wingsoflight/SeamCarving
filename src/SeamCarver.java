@@ -51,24 +51,25 @@ public class SeamCarver {
 
     }
 
+    private int getGrad(int pixel1, int pixel2){
+        int grad = 0, mask = 0xFF;
+        for(int i = 0; i < 3; ++i){
+            int a = pixel1 & mask, b = pixel2 & mask;
+            int diff = a - b;
+            grad += diff * diff;
+            pixel1 >>= 8;
+            pixel2 >>= 8;
+        }
+        return grad;
+    }
+
     private int getEnergy(int x, int y){
         int leftPixel = picture.getRGB((x > 0 ? x - 1 : width - 1), y);
         int rightPixel = picture.getRGB((x == width - 1 ? 0 : x + 1), y);
         int lowerPixel = picture.getRGB(x, (y == height - 1 ? 0 : y + 1));
         int upperPixel = picture.getRGB(x, (y > 0 ? y - 1 : height - 1));
-        int horizontalGrad = 0, verticalGrad = 0, mask = 0xFF;
-        for(int i = 0; i < 3; ++i){
-            int l = leftPixel & mask, r = rightPixel & mask;
-            int u = upperPixel & mask, d = lowerPixel & mask;
-            int vDiff = u - d;
-            int hDiff = l - r;
-            horizontalGrad += hDiff * hDiff;
-            verticalGrad += vDiff * vDiff;
-            leftPixel >>= 8;
-            rightPixel >>= 8;
-            upperPixel >>= 8;
-            lowerPixel >>= 8;
-        }
+        int horizontalGrad = getGrad(leftPixel, rightPixel);
+        int verticalGrad = getGrad(upperPixel, lowerPixel);
         return horizontalGrad + verticalGrad;
     }
 
