@@ -68,9 +68,7 @@ public class SeamCarver {
         int rightPixel = picture.getRGB((x == width - 1 ? 0 : x + 1), y);
         int lowerPixel = picture.getRGB(x, (y == height - 1 ? 0 : y + 1));
         int upperPixel = picture.getRGB(x, (y > 0 ? y - 1 : height - 1));
-        int horizontalGrad = getGrad(leftPixel, rightPixel);
-        int verticalGrad = getGrad(upperPixel, lowerPixel);
-        return horizontalGrad + verticalGrad;
+        return getGrad(leftPixel, rightPixel) + getGrad(upperPixel, lowerPixel);
     }
 
 
