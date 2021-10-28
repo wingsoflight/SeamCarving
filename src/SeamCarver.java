@@ -5,16 +5,14 @@ import java.awt.*;
 public class SeamCarver {
     private Picture picture;
     private int height, width;
-    int[][] matrix;
+    int[][] energies;
 
-    public SeamCarver(Picture picture){
+    public SeamCarver(Picture picture) {
         this.picture = picture;
         width = picture.width();
         height = picture.height();
-        matrix = new int[height][width];
-        for (int i = 0; i < height; ++i)
-            for (int j = 0; j < width; ++j)
-                matrix[i][j] = getEnergy(j, i);
+        calculateEnergies();
+        picture.show();
     }
 
     public Picture picture(){
@@ -32,7 +30,7 @@ public class SeamCarver {
     public double energy(int x, int y) throws IllegalArgumentException{
         if(x >= width || x < 0 || y >= height || y < 0)
             throw new IllegalArgumentException();
-        return Math.sqrt(1.0 * matrix[y][x]);
+        return Math.sqrt(1.0 * energies[y][x]);
     }
 
     public int[] findHorizontalSeam(){
@@ -71,9 +69,16 @@ public class SeamCarver {
         return getGrad(leftPixel, rightPixel) + getGrad(upperPixel, lowerPixel);
     }
 
+    private void calculateEnergies(){
+        energies = new int[height][width];
+        for (int i = 0; i < height; ++i)
+            for (int j = 0; j < width; ++j)
+                energies[i][j] = getEnergy(j, i);
+    }
+
 
     public static void main(String[] args) {
-        Picture picture = new Picture("3x4.png");
+        Picture picture = new Picture("chameleon.png");
         SeamCarver seamCarver = new SeamCarver(picture);
         System.out.println(seamCarver.energy(1, 2));
     }
