@@ -1,6 +1,8 @@
 import edu.princeton.cs.algs4.Picture;
 
+import javax.swing.plaf.synth.SynthLookAndFeel;
 import java.awt.*;
+import java.util.Arrays;
 
 public class SeamCarver {
     private Picture picture;
@@ -9,10 +11,7 @@ public class SeamCarver {
 
     public SeamCarver(Picture picture) {
         this.picture = picture;
-        width = picture.width();
-        height = picture.height();
         calculateEnergies();
-        picture.show();
     }
 
     public Picture picture(){
@@ -34,19 +33,19 @@ public class SeamCarver {
     }
 
     public int[] findHorizontalSeam(){
-        return null;
+        return findSeam(true);
     }
 
     public int[] findVerticalSeam(){
-        return null;
+        return findSeam(false);
     }
 
     public void removeHorizontalSeam(int[] seam) throws IllegalArgumentException{
-
+        removeSeam(seam, true);
     }
 
     public void removeVerticalSeam(int[] seam) throws IllegalArgumentException{
-
+        removeSeam(seam, false);
     }
 
     private int getGrad(int pixel1, int pixel2){
@@ -70,16 +69,87 @@ public class SeamCarver {
     }
 
     private void calculateEnergies(){
+        height = picture.height();
+        width = picture.width();
         energies = new int[height][width];
         for (int i = 0; i < height; ++i)
             for (int j = 0; j < width; ++j)
                 energies[i][j] = getEnergy(j, i);
     }
 
+    private int[] findSeam(boolean horizontal){
+        int n = height, m = width;
+        if(horizontal) {
+            n = width;
+            m = height;
+        }
+        int[][] dp = new int[n][m];
+        int[][] prev = new int[n][m];
+        int[] ret = new int[n];
+        for(int i = 0; i < n; ++i){
+            Arrays.fill(dp[i], Integer.MAX_VALUE);
+            for(int j = 0; j < m; ++j){
+                int l = Math.max(j - 1, 0);
+                int r = Math.min(j + 1, m - 1);
+                for(int k = l; k <= r; ++k){
+                    System.out.println(k);
+                    int s = dp[i - 1][k] + energies[i][j];
+                    if(dp[i][j] > s){
+                        dp[i][j] = s;
+                        prev[i][j] = k;
+                    }
+                }
+            }
+        }
+        int min = dp[n - 1][0], ind = 0;
+        for(int j = 1; j < m; ++j){
+            if(min > dp[n - 1][j]){
+                ind = j;
+                min = dp[n - 1][j];
+            }
+        }
+        for(int i = n - 1; i >= 0; --i){
+            ret[i] = ind;
+            ind = prev[i][ind];
+        }
+        return ret;
+    }
+
+    private void removeSeam(int[] seam, boolean horizontal){
+        int n = height, m = width;
+        if(horizontal) {
+            n = width;
+            m = height;
+        }
+        Picture tmp = new Picture(width, height);
+        for(int i = 0; i < n; ++i){
+            int k = 0;
+            for(int j = 0; j < m; ++j){
+                int color = picture.getRGB(j, i);
+                if(seam[i] == j)
+                    color = 0xFF0000;
+                tmp.setRGB(k++, i, color);
+            }
+        }
+        picture = tmp;
+    }
+
+    private int[][] transpose(int[][] arr){
+        int n = arr.length, m = arr[0].length;
+        int[][] ret = new int[m][n];
+        for(int i = 0; i < m; ++i)
+            for(int j = 0; j < n; ++j)
+                ret[i][j] = arr[j][i];
+        return ret;
+    }
 
     public static void main(String[] args) {
-        Picture picture = new Picture("chameleon.png");
+        Picture picture = new Picture("HJocean.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        System.out.println(seamCarver.energy(1, 2));
+        for(int i = 0; i < 1; ++i){
+            int[] seam = seamCarver.findHorizontalSeam();
+            seamCarver.removeHorizontalSeam(seam);
+        }
+        seamCarver.picture.show();
     }
 }
