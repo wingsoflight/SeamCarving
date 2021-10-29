@@ -115,19 +115,24 @@ public class SeamCarver {
     }
 
     private void removeSeam(int[] seam, boolean horizontal){
-        int n = height, m = width;
-        if(horizontal){
-            n = width;
-            m = height;
+        int h = height, w = width;
+        if(!horizontal) {
+            h = width;
+            w = height;
         }
-        Picture tmp = new Picture(width, height);
-        for(int i = 0; i < n; ++i){
+        Picture tmp = new Picture(w, h);
+        for(int x = 0; x < w; ++x){
             int k = 0;
-            for(int j = 0; j < m; ++j){
-                int color = picture.getRGB(j, i);
-                if(seam[i] == j)
+            for(int y = 0; y < h; ++y){
+                int _x = x, _y = y;
+                if(!horizontal){
+                    _x = y;
+                    _y = x;
+                }
+                int color = picture.getRGB(_x, _y);
+                if(seam[x] == y)
                     color = 0xFF0000;
-                tmp.setRGB(k++, i, color);
+                tmp.setRGB(x, k++, color);
             }
         }
         picture = tmp;
@@ -143,10 +148,10 @@ public class SeamCarver {
     }
 
     public static void main(String[] args) {
-        Picture picture = new Picture("6x5.png");
+        Picture picture = new Picture("HJocean.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        int[] horizontalSeam = seamCarver.findHorizontalSeam();
-        Picture overlay = SCUtility.seamOverlay(picture, true, horizontalSeam);
-        overlay.show();
+        int[] horizontalSeam = seamCarver.findVerticalSeam();
+        seamCarver.removeVerticalSeam(horizontalSeam);
+        seamCarver.picture().show();
     }
 }
