@@ -1,4 +1,4 @@
-import edu.princeton.cs.algs4.Picture;
+import edu.princeton.cs.algs4.*;
 
 import javax.swing.plaf.synth.SynthLookAndFeel;
 import java.awt.*;
@@ -78,22 +78,21 @@ public class SeamCarver {
     }
 
     private int[] findSeam(boolean horizontal){
-        int n = height, m = width;
-        if(horizontal) {
-            n = width;
-            m = height;
-        }
+        int[][] e = energies;
+        if(horizontal)
+            e = transpose(e);
+        int n = e.length, m = e[0].length;
         int[][] dp = new int[n][m];
+        dp[0] = e[0];
         int[][] prev = new int[n][m];
         int[] ret = new int[n];
-        for(int i = 0; i < n; ++i){
+        for(int i = 1; i < n; ++i){
             Arrays.fill(dp[i], Integer.MAX_VALUE);
             for(int j = 0; j < m; ++j){
                 int l = Math.max(j - 1, 0);
                 int r = Math.min(j + 1, m - 1);
                 for(int k = l; k <= r; ++k){
-                    System.out.println(k);
-                    int s = dp[i - 1][k] + energies[i][j];
+                    int s = dp[i - 1][k] + e[i][j];
                     if(dp[i][j] > s){
                         dp[i][j] = s;
                         prev[i][j] = k;
@@ -117,7 +116,7 @@ public class SeamCarver {
 
     private void removeSeam(int[] seam, boolean horizontal){
         int n = height, m = width;
-        if(horizontal) {
+        if(horizontal){
             n = width;
             m = height;
         }
@@ -137,19 +136,17 @@ public class SeamCarver {
     private int[][] transpose(int[][] arr){
         int n = arr.length, m = arr[0].length;
         int[][] ret = new int[m][n];
-        for(int i = 0; i < m; ++i)
-            for(int j = 0; j < n; ++j)
-                ret[i][j] = arr[j][i];
+        for(int x = 0; x < m; ++x)
+            for(int y = 0; y < n; ++y)
+                ret[x][y] = arr[y][x];
         return ret;
     }
 
     public static void main(String[] args) {
-        Picture picture = new Picture("HJocean.png");
+        Picture picture = new Picture("6x5.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        for(int i = 0; i < 1; ++i){
-            int[] seam = seamCarver.findHorizontalSeam();
-            seamCarver.removeHorizontalSeam(seam);
-        }
-        seamCarver.picture.show();
+        int[] horizontalSeam = seamCarver.findHorizontalSeam();
+        Picture overlay = SCUtility.seamOverlay(picture, true, horizontalSeam);
+        overlay.show();
     }
 }
