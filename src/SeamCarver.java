@@ -165,12 +165,12 @@ public class SeamCarver {
             _picture = transposePicture(_picture);
         picture = _picture;
     }
-    
+
     private Picture transposePicture(Picture picture) {
         int width = picture.width(), height = picture.height();
         Picture _picture = new Picture(height, width);
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
                 int color = picture.getRGB(x, y);
                 _picture.setRGB(y, x, color);
             }
@@ -179,9 +179,8 @@ public class SeamCarver {
     }
 
     public static void main(String[] args) {
-        Picture picture = new Picture("HJocean.png");
-        SeamCarver seamCarver = new SeamCarver(picture);
-        for (int i = 0; i < 150; ++i) {
+        SeamCarver seamCarver = new SeamCarver(new Picture("stadium2000-by-8000.png"));
+        for (int i = 0; i < 100; ++i) {
             int[] seam = seamCarver.findVerticalSeam();
             seamCarver.removeVerticalSeam(seam);
         }
