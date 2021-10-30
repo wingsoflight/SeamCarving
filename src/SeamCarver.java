@@ -2,6 +2,7 @@ import edu.princeton.cs.algs4.*;
 
 import javax.swing.plaf.synth.SynthLookAndFeel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SeamCarver {
@@ -40,11 +41,38 @@ public class SeamCarver {
         return findSeam(false);
     }
 
+    void checkSeam(int[] seam, int expectedLength, int maxValue){
+        if (seam == null)
+            throw new IllegalArgumentException("Seam cannot be NULL");
+        if(seam.length != expectedLength)
+            throw new IllegalArgumentException(String.format("Seam length must be equal to %d", expectedLength));
+        int mn = seam.length, mx = -1, prev = -1;
+        for(int x: seam){
+            mn = Math.min(mn, x);
+            mx = Math.max(mx, x);
+            if(prev == -1){
+                prev = x;
+                continue;
+            }
+            if(Math.abs(x - prev) > 1)
+                throw new IllegalArgumentException("Adjacent seam values cannot differ more than by 1");
+            prev = x;
+        }
+        if(mx >= width || mn < 0)
+            throw new IllegalArgumentException(String.format("Seam values must be in range between 0 and %d", maxValue - 1));
+    }
+
     public void removeHorizontalSeam(int[] seam) throws IllegalArgumentException{
+        if (height == 1)
+            throw new IllegalArgumentException("Cannot remove seam from picture with width height to 1");
+        checkSeam(seam, width, height);
         removeSeam(seam, true);
     }
 
     public void removeVerticalSeam(int[] seam) throws IllegalArgumentException{
+        if (width == 1)
+            throw new IllegalArgumentException("Cannot remove seam from picture with width equals to 1");
+        checkSeam(seam, height, width);
         removeSeam(seam, false);
     }
 
@@ -116,26 +144,31 @@ public class SeamCarver {
 
     private void removeSeam(int[] seam, boolean horizontal){
         int h = height, w = width;
-        if(!horizontal) {
+        Picture tmp = new Picture((horizontal ? w : w - 1), (horizontal ? h - 1 : h));
+        //Picture tmp = new Picture(w, h);
+        if(horizontal) {
             h = width;
             w = height;
         }
-        Picture tmp = new Picture(w, h);
-        for(int x = 0; x < w; ++x){
+        for(int y = 0; y < h; ++y){
             int k = 0;
-            for(int y = 0; y < h; ++y){
+            for(int x = 0; x < w; ++x){
                 int _x = x, _y = y;
-                if(!horizontal){
+                if(horizontal){
                     _x = y;
                     _y = x;
                 }
                 int color = picture.getRGB(_x, _y);
-                if(seam[x] == y)
-                    color = 0xFF0000;
-                tmp.setRGB(x, k++, color);
+                if(seam[y] == x)
+                    continue;
+                if(horizontal)
+                    tmp.setRGB(_x, k++, color);
+                else
+                    tmp.setRGB(k++, _y, color);
             }
         }
         picture = tmp;
+        calculateEnergies();
     }
 
     private int[][] transpose(int[][] arr){
@@ -150,8 +183,10 @@ public class SeamCarver {
     public static void main(String[] args) {
         Picture picture = new Picture("HJocean.png");
         SeamCarver seamCarver = new SeamCarver(picture);
-        int[] horizontalSeam = seamCarver.findVerticalSeam();
-        seamCarver.removeVerticalSeam(horizontalSeam);
+        for(int i = 0; i < 150; ++i) {
+            int[] horizontalSeam = seamCarver.findVerticalSeam();
+            seamCarver.removeVerticalSeam(horizontalSeam);
+        }
         seamCarver.picture().show();
     }
 }
